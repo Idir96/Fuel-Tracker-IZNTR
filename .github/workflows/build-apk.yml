@@ -56,5 +56,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: "APK v1.0.${{ github.run_number }}"
-          body: | 📱 **تحميل مباشر:** نزّل `ALSCIF-Carburant.apk` من "Assets" تحت، وثبّتو ف التليفون. (إذا طلب منك الأندرويد، فعّل "السماح بالتثبيت من هذا المصدر".)           files: ALSCIF-Carburant.apk
+          name: "APK v1.0.${{ github.run_number
