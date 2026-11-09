@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="author" content="Izountar Idir">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carburant">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>نظام متابعة بطاقة الوقود - ALSCIF</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================== الواجهة ================== -->
+<div class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="logo">⛽</div>
+      <div><h1 data-i18n="app_title"></h1><p data-i18n="app_sub"></p></div>
+    </div>
+    <div class="actions">
+      <div class="lang" id="langSw" role="group" aria-label="Language">
+        <button type="button" data-l="ar" onclick="setLang('ar')">عربية</button>
+        <button type="button" data-l="fr" onclick="setLang('fr')">FR</button>
+        <button type="button" data-l="en" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="btn-glass" onclick="exportExcel()" data-i18n="export_xlsx"></button>
+      <button class="btn-glass" onclick="exportPDF()" data-i18n="export_pdf"></button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+
+  <div class="alert-bar" id="lowBar">
+    <div id="lowTxt"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-glass" onclick="document.getElementById('fCam').click()" data-i18n="cam_last"></button>
+      <button class="btn-glass" onclick="openRecharge()" data-i18n="recharge_log"></button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat" id="stBalBox"><div class="ic ic1">💳</div><div><small data-i18n="st_balance"></small><b id="stBal">0.00</b></div></div>
+    <div class="stat"><div class="ic ic2">🧾</div><div><small data-i18n="st_spent"></small><b id="stSpent">0.00</b></div></div>
+    <div class="stat"><div class="ic ic3">🛢️</div><div><small data-i18n="st_liters"></small><b id="stLit">0.00</b></div></div>
+    <div class="stat"><div class="ic ic4">📋</div><div><small data-i18n="st_count"></small><b id="stCnt">0</b></div></div>
+  </div>
+
+  <!-- بيانات البطاقة -->
+  <div class="card">
+    <div class="card-h"><span class="t" data-i18n="cfg_title"></span><small style="color:var(--muted);font-weight:500" data-i18n="cfg_auto"></small></div>
+    <div class="card-b">
+      <div class="cfg-grid">
+        <div class="fg"><label data-i18n="cfg_initial"></label><input type="number" step="0.01" id="cfgInitial" placeholder="0" oninput="saveConfig()"></div>
+        <div class="fg"><label data-i18n="cfg_card"></label><input type="text" id="cfgCard" placeholder="3220..." oninput="saveConfig()"></div>
+        <div class="fg"><label data-i18n="cfg_type"></label><input type="text" id="cfgType" data-i18n-ph="ph_divers" oninput="saveConfig()"></div>
+        <div class="fg"><label data-i18n="cfg_immat"></label><input type="text" id="cfgImmat" data-i18n-ph="ph_divers" oninput="saveConfig()"></div>
+        <div class="fg"><label data-i18n="cfg_thr"></label><input type="number" step="1" id="cfgThr" placeholder="3000" oninput="saveConfig()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <!-- نموذج الإدخال -->
+      <div class="card">
+        <div class="card-h"><span class="t" id="formTitle"></span></div>
+        <div class="card-b">
+          <div class="balance">
+            <small data-i18n="exp_bal"></small><br>
+            <span class="v" id="expBal">0.00</span><br>
+            <span class="pr" data-i18n="price_line"></span>
+          </div>
+          <form id="entryForm" onsubmit="handleSubmit(event)">
+            <input type="hidden" id="editIndex" value="-1">
+            <div class="fg"><label data-i18n="f_date"></label><input type="date" id="inpDate" required></div>
+            <div class="fg"><label data-i18n="f_driver"></label><input type="text" id="inpDriver" required></div>
+            <div class="fg"><label data-i18n="f_vehicle"></label><input type="text" id="inpVehicle" required data-i18n-ph="f_vehicle_ph"></div>
+            <div class="fg"><label style="color:var(--bad)" data-i18n="f_amount"></label><input type="number" step="0.01" id="inpAmount" class="in-red" required oninput="calcLiters()"></div>
+            <div class="calc"><span data-i18n="calc_l"></span> <strong class="ltr" id="calcLit">0.00</strong> <span data-i18n="liter"></span></div>
+            <div class="fg"><label style="color:var(--ok)" data-i18n="f_ticket"></label><input type="number" step="0.01" id="inpTicket" class="in-green" required></div>
+            <div style="display:flex;gap:10px">
+              <button type="submit" id="saveBtn" class="btn-main btn-block"></button>
+              <button type="button" id="cancelBtn" class="btn-red btn-block" style="display:none" onclick="cancelEdit()" data-i18n="btn_cancel"></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- صور الوصل -->
+      <div class="card" id="photoCard">
+        <div class="card-h"><span class="t" data-i18n="photo_title"></span><small style="color:var(--muted);font-weight:500" id="phCount"></small></div>
+        <div class="card-b">
+          <p class="hint" data-i18n-html="photo_hint"></p>
+          <div class="photo-actions">
+            <button class="btn-main" onclick="document.getElementById('fCam').click()" data-i18n="photo_cam"></button>
+            <button class="btn-soft" onclick="document.getElementById('fGal').click()" data-i18n="photo_gal"></button>
+          </div>
+          <input type="file" id="fCam" accept="image/*" capture="environment" hidden onchange="addPhotos(this)">
+          <input type="file" id="fGal" accept="image/*" multiple hidden onchange="addPhotos(this)">
+          <div class="photos" id="photos"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- السجل -->
+    <div>
+      <div class="card">
+        <div class="card-h"><span class="t" data-i18n="log_title"></span><div style="display:flex;gap:6px"><button class="btn-green btn-sm" onclick="openRecharge()" data-i18n="btn_recharge"></button><button class="btn-red btn-sm" onclick="clearData()" data-i18n="btn_clear"></button></div></div>
+        <div class="tw">
+          <table class="t">
+            <thead><tr><th data-i18n="th_date"></th><th data-i18n="th_driver"></th><th data-i18n="th_vehicle"></th><th data-i18n="th_amount"></th><th data-i18n="th_qty"></th><th data-i18n="th_ticket"></th><th data-i18n="th_status"></th><th data-i18n="th_actions"></th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="credit"><span data-i18n="credit"></span> <b>Izountar Idir</b></footer>
+
+<!-- إنذار -->
+<div class="overlay" id="alertModal">
+  <div class="modal">
+    <div class="modal-h" data-i18n="alert_title"></div>
+    <div class="modal-b" id="alertText"></div>
+    <div class="modal-a">
+      <button class="btn-soft" onclick="cancelTx()" data-i18n="btn_cancel_tx"></button>
+      <button class="btn-red" onclick="forceSave()" data-i18n="btn_force"></button>
+    </div>
+  </div>
+</div>
+
+<!-- شحن البطاقة -->
+<div class="overlay" id="rcModal">
+  <div class="modal">
+    <div class="modal-h" style="background:linear-gradient(120deg,#059669,#06b6d4)" data-i18n="rc_title"></div>
+    <div class="modal-b" style="text-align:start">
+      <div class="fg"><label data-i18n="rc_date"></label><input type="date" id="rcDate"></div>
+      <div class="fg" style="margin:0"><label data-i18n="rc_amount"></label><input type="number" step="0.01" id="rcAmount" class="in-green" placeholder="0"></div>
+      <p class="hint" style="margin-top:10px" data-i18n="rc_hint"></p>
+    </div>
+    <div class="modal-a">
+      <button class="btn-soft" onclick="closeRecharge()" data-i18n="btn_cancel"></button>
+      <button class="btn-main" onclick="saveRecharge()" data-i18n="btn_rc_save"></button>
+    </div>
+  </div>
+</div>
+
+<!-- تكبير صورة -->
+<div class="overlay" id="lightbox" onclick="this.style.display='none'"><img id="lbImg" alt=""></div>
+<div class="toast" id="toast"></div>
+
+<!-- ================== منطقة الطباعة / PDF ================== -->
+<div id="print-area">
+  <table class="ph-head">
+    <tr>
+      <td style="width:20%;font-size:16px;font-weight:bold;color:#555">ALSCIF</td>
+      <td style="width:60%">
+        <div class="cn">Société Algérienne de Stimulation, Cimentation et Fracturation de puits pétroliers</div>
+        <div class="cs">Société par actions au capital de 1 250 000 000 DA</div>
+        <div class="cn">(100% Filiale ENSP Spa)</div>
+      </td>
+      <td style="width:20%;text-align:left;font-size:10px">Code : ERSMI-51/10-a<br>Date : 17 Juin 2026</td>
+    </tr>
+    <tr><td colspan="3" class="dt">Fiche de suivi de consommation carte carburant véhicules et engins</td></tr>
+  </table>
+  <div class="pm"><div>Direction Approvisionnement &amp; Logistique</div><div>HMD, le <span id="pDate">...........................</span></div></div>
+  <div class="pi">
+    Type d'Engin ou véhicule : <span id="pType">Divers</span><br>
+    Immatriculation ou Numéro de série : <span id="pImmat">Divers</span><br>
+    N° de la carte de chargement carburant : <span id="pCard">......................</span>
+  </div>
+  <table class="pt">
+    <thead>
+      <tr><th rowspan="2" style="width:5%">N°</th><th rowspan="2" style="width:12%">Date</th><th rowspan="2" style="width:20%">Nom et prénom</th><th rowspan="2" style="width:18%">Véhicule / Immat.</th><th colspan="2">Montant ou quantités</th><th rowspan="2" style="width:20%">Signature de l'utilisateur</th></tr>
+      <tr><th style="width:12.5%">Montant</th><th style="width:12.5%">Quantités</th></tr>
+    </thead>
+    <tbody id="pBody"></tbody>
+  </table>
+  <div class="psig"><div>Visa de l'utilisateur de véhicule/engin/équipement</div><div>Visa département du concerné</div><div>Chef de Service Magasin</div></div>
+  <div class="pft"><div>ALSCIF / ALGER Direction Générale...</div><div style="font-weight:bold;font-size:10px">TUV AUSTRIA</div></div>
+
+  <!-- الصفحة الثانية: صور الوصل -->
+  <div class="photo-page" id="pPhotos" style="display:none"></div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
