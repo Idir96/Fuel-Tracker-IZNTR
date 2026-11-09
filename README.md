@@ -25,6 +25,20 @@ python3 -m http.server 8000   # ثم افتح http://localhost:8000
 4. الرابط يطلع ف دقيقة: `https://USERNAME.github.io/REPO/`
 5. ف التليفون افتح الرابط ← "إضافة إلى الشاشة الرئيسية" باش يتثبت كتطبيق.
 
+## 📱 تحميل APK مباشرة من GitHub
+الـ APK يتبنى أوتوماتيكيا ب GitHub Actions (Capacitor) كل ما ترفع تعديل على `main`:
+1. ارفع الملفات (بما فيهم مجلد `.github`) على GitHub.
+2. ادخل تبويب **Actions** ← **Build Android APK**، استنى 5-10 دقايق حتى يولي أخضر ✅ (تقدر تشغله يدويا بـ "Run workflow").
+3. ادخل **Releases** (ف يمين صفحة الريبو) ← حمّل `ALSCIF-Carburant.apk`.
+   الرابط الدايم لآخر نسخة: `https://github.com/USERNAME/REPO/releases/latest`
+4. ف التليفون: افتح الملف وثبّتو (فعّل "السماح بالتثبيت من هذا المصدر" إذا طلبها).
+
+ملاحظات:
+- إذا فشل النشر ف Releases: `Settings → Actions → General → Workflow permissions → Read and write permissions`.
+- الـ APK موقّع بمفتاح debug (يخدم للتثبيت المباشر، ماشي للنشر ف Google Play).
+- **PDF** ف التطبيق يفتح نافذة الطباعة تاع الأندرويد (A4)، اختار "Save as PDF". **Excel** يتبعث عبر المشاركة (Share) باش تحفظه ولا تبعثه.
+- ملفات المشروع الخاصة بالـ APK: `.github/workflows/build-apk.yml`, `capacitor.config.json`, `package.json`, `android-overrides/`, `scripts/`, `assets/`.
+
 ## الملفات
 | الملف | الدور |
 |---|---|
