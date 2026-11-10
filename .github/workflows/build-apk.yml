@@ -1,59 +1,27 @@
-name: Build Android APK
-
+name: Build APK
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   apk:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Prepare web assets
-        run: | rm -rf www && mkdir www cp index.html style.css app.js i18n.js manifest.webmanifest www/ cp -r icons www/icons 
-      - name: Add Android platform
-        run: npx cap add android
-
-      - name: Apply Android overrides (print + camera)
-        run: bash scripts/android-setup.sh
-
-      - name: Generate launcher icons
-        run: npx --yes @capacitor/assets generate --android || echo "icons skipped"
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Build debug APK
-        working-directory: android
-        run: | chmod +x gradlew ./gradlew assembleDebug --no-daemon 
-      - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk ALSCIF-Carburant.apk
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ALSCIF-Carburant-apk
-          path: ALSCIF-Carburant.apk
-
-      - name: Publish GitHub Release
+      - name: Build APK
+        run: 'echo IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWV1byBwaXBlZmFpbAoKIyAxKSDZhdmE2YHYp9iqINin2YTZiNmK2KgKbWtkaXIgLXAgd3d3CmNwIGluZGV4Lmh0bWwgd3d3L2luZGV4Lmh0bWwKZm9yIGYgaW4gc3R5bGUuY3NzIGFwcC5qcyBpMThuLmpzOyBkbwogIGlmIFsgLWYgIiRmIiBdOyB0aGVuIGNwICIkZiIgd3d3LzsgZmkKZG9uZQoKIyAyKSBDYXBhY2l0b3IKaWYgWyAhIC1mIHBhY2thZ2UuanNvbiBdOyB0aGVuIG5wbSBpbml0IC15OyBmaQpucG0gaW5zdGFsbCBAY2FwYWNpdG9yL2NvcmVANiBAY2FwYWNpdG9yL2NsaUA2IEBjYXBhY2l0b3IvYW5kcm9pZEA2IEBjYXBhY2l0b3IvZmlsZXN5c3RlbUA2IEBjYXBhY2l0b3Ivc2hhcmVANgpjYXQgPiBjYXBhY2l0b3IuY29uZmlnLmpzb24gPDwnRU9GJwp7ImFwcElkIjoiZHouYWxzY2lmLmNhcmJ1cmFudCIsImFwcE5hbWUiOiJDYXJidXJhbnQgQUxTQ0lGIiwid2ViRGlyIjoid3d3Iiwic2VydmVyIjp7ImFuZHJvaWRTY2hlbWUiOiJodHRwcyJ9fQpFT0YKbnB4IGNhcCBhZGQgYW5kcm9pZAoKIyAzKSDYp9mE2LfYqNin2LnYqSDYp9mE2KPYtdmE2YrYqSAoUERGIEE0KSArINi12YTYp9it2YrYqSDYp9mE2YPYp9mF2YrYsdinCkQ9YW5kcm9pZC9hcHAvc3JjL21haW4vamF2YS9kei9hbHNjaWYvY2FyYnVyYW50Cm1rZGlyIC1wICIkRCIKY2F0ID4gIiREL01haW5BY3Rpdml0eS5qYXZhIiA8PCdFT0YnCnBhY2thZ2UgZHouYWxzY2lmLmNhcmJ1cmFudDsKCmltcG9ydCBhbmRyb2lkLm9zLkJ1bmRsZTsKaW1wb3J0IGNvbS5nZXRjYXBhY2l0b3IuQnJpZGdlQWN0aXZpdHk7CgpwdWJsaWMgY2xhc3MgTWFpbkFjdGl2aXR5IGV4dGVuZHMgQnJpZGdlQWN0aXZpdHkgewogICAgQE92ZXJyaWRlCiAgICBwdWJsaWMgdm9pZCBvbkNyZWF0ZShCdW5kbGUgc2F2ZWRJbnN0YW5jZVN0YXRlKSB7CiAgICAgICAgcmVnaXN0ZXJQbHVnaW4oTmF0aXZlUHJpbnRQbHVnaW4uY2xhc3MpOwogICAgICAgIHN1cGVyLm9uQ3JlYXRlKHNhdmVkSW5zdGFuY2VTdGF0ZSk7CiAgICB9Cn0KRU9GCmNhdCA+ICIkRC9OYXRpdmVQcmludFBsdWdpbi5qYXZhIiA8PCdFT0YnCnBhY2thZ2UgZHouYWxzY2lmLmNhcmJ1cmFudDsKCmltcG9ydCBhbmRyb2lkLmNvbnRlbnQuQ29udGV4dDsKaW1wb3J0IGFuZHJvaWQucHJpbnQuUHJpbnRBdHRyaWJ1dGVzOwppbXBvcnQgYW5kcm9pZC5wcmludC5QcmludERvY3VtZW50QWRhcHRlcjsKaW1wb3J0IGFuZHJvaWQucHJpbnQuUHJpbnRNYW5hZ2VyOwppbXBvcnQgYW5kcm9pZC53ZWJraXQuV2ViVmlldzsKaW1wb3J0IGNvbS5nZXRjYXBhY2l0b3IuUGx1Z2luOwppbXBvcnQgY29tLmdldGNhcGFjaXRvci5QbHVnaW5DYWxsOwppbXBvcnQgY29tLmdldGNhcGFjaXRvci5QbHVnaW5NZXRob2Q7CmltcG9ydCBjb20uZ2V0Y2FwYWNpdG9yLmFubm90YXRpb24uQ2FwYWNpdG9yUGx1Z2luOwoKQENhcGFjaXRvclBsdWdpbihuYW1lID0gIk5hdGl2ZVByaW50IikKcHVibGljIGNsYXNzIE5hdGl2ZVByaW50UGx1Z2luIGV4dGVuZHMgUGx1Z2luIHsKICAgIEBQbHVnaW5NZXRob2QKICAgIHB1YmxpYyB2b2lkIHByaW50KGZpbmFsIFBsdWdpbkNhbGwgY2FsbCkgewogICAgICAgIGZpbmFsIFN0cmluZyBuYW1lID0gY2FsbC5nZXRTdHJpbmcoIm5hbWUiLCAiU3VpdmlfQ2FyYnVyYW50Iik7CiAgICAgICAgZ2V0QWN0aXZpdHkoKS5ydW5PblVpVGhyZWFkKCgpIC0+IHsKICAgICAgICAgICAgdHJ5IHsKICAgICAgICAgICAgICAgIFdlYlZpZXcgd2ViVmlldyA9IGdldEJyaWRnZSgpLmdldFdlYlZpZXcoKTsKICAgICAgICAgICAgICAgIFByaW50TWFuYWdlciBwbSA9IChQcmludE1hbmFnZXIpIGdldEFjdGl2aXR5KCkuZ2V0U3lzdGVtU2VydmljZShDb250ZXh0LlBSSU5UX1NFUlZJQ0UpOwogICAgICAgICAgICAgICAgUHJpbnREb2N1bWVudEFkYXB0ZXIgYWRhcHRlciA9IHdlYlZpZXcuY3JlYXRlUHJpbnREb2N1bWVudEFkYXB0ZXIobmFtZSk7CiAgICAgICAgICAgICAgICBQcmludEF0dHJpYnV0ZXMgYXR0cnMgPSBuZXcgUHJpbnRBdHRyaWJ1dGVzLkJ1aWxkZXIoKQogICAgICAgICAgICAgICAgICAgICAgICAuc2V0TWVkaWFTaXplKFByaW50QXR0cmlidXRlcy5NZWRpYVNpemUuSVNPX0E0KQogICAgICAgICAgICAgICAgICAgICAgICAuc2V0TWluTWFyZ2lucyhuZXcgUHJpbnRBdHRyaWJ1dGVzLk1hcmdpbnMoNDcyLCA0NzIsIDQ3MiwgNDcyKSkKICAgICAgICAgICAgICAgICAgICAgICAgLmJ1aWxkKCk7CiAgICAgICAgICAgICAgICBwbS5wcmludChuYW1lLCBhZGFwdGVyLCBhdHRycyk7CiAgICAgICAgICAgICAgICBjYWxsLnJlc29sdmUoKTsKICAgICAgICAgICAgfSBjYXRjaCAoRXhjZXB0aW9uIGUpIHsKICAgICAgICAgICAgICAgIGNhbGwucmVqZWN0KFN0cmluZy52YWx1ZU9mKGUuZ2V0TWVzc2FnZSgpKSk7CiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQpFT0YKTUFOSUZFU1Q9YW5kcm9pZC9hcHAvc3JjL21haW4vQW5kcm9pZE1hbmlmZXN0LnhtbAppZiAhIGdyZXAgLXEgImFuZHJvaWQucGVybWlzc2lvbi5DQU1FUkEiICIkTUFOSUZFU1QiOyB0aGVuCiAgc2VkIC1pICdzIzxhcHBsaWNhdGlvbiM8dXNlcy1wZXJtaXNzaW9uIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5wZXJtaXNzaW9uLkNBTUVSQSIgLz5cbiAgICA8YXBwbGljYXRpb24jJyAiJE1BTklGRVNUIgpmaQoKIyA0KSDYo9mK2YLZiNmG2Kkg2KfZhNiq2LfYqNmK2YIgKNil2LDYpyDZgdi02YTYqtiMINmK2KjZgtmJINin2YTYo9mK2YLZiNmG2Kkg2KfZhNin2YHYqtix2KfYttmK2KkpCm1ha2VfaWNvbnMoKSB7CiAgbWtkaXIgLXAgYXNzZXRzCiAgY29udmVydCAtc2l6ZSAxMDI0eDEwMjQgZ3JhZGllbnQ6JyM0ZjQ2ZTUtIzA2YjZkNCcgYXNzZXRzL2ljb24tYmFja2dyb3VuZC5wbmcKICBjb252ZXJ0IC1zaXplIDEwMjR4MTAyNCB4Yzpub25lIC1maWxsIHdoaXRlIC1kcmF3ICJyb3VuZHJlY3RhbmdsZSAzMzAsMjYwIDY0MCw4MjAgNDUsNDUiIC1kcmF3ICJyb3VuZHJlY3RhbmdsZSAyNzAsNzkwIDcwMCw4NTAgMzAsMzAiIC1maWxsICcjNGY0NmU1JyAtZHJhdyAicm91bmRyZWN0YW5nbGUgMzcwLDMxMCA2MDAsNDUwIDIwLDIwIiAtZmlsbCBub25lIC1zdHJva2Ugd2hpdGUgLXN0cm9rZXdpZHRoIDQ0IC1kcmF3ICJwYXRoICdNIDY2MCw0MjAgTCA3MjAsNDIwIFEgNzgwLDQyMCA3ODAsNDgwIEwgNzgwLDY2MCBRIDc4MCw3MjAgODMwLDcyMCciIGFzc2V0cy9pY29uLWZvcmVncm91bmQucG5nCiAgY29udmVydCBhc3NldHMvaWNvbi1iYWNrZ3JvdW5kLnBuZyBhc3NldHMvaWNvbi1mb3JlZ3JvdW5kLnBuZyAtY29tcG9zaXRlIGFzc2V0cy9pY29uLW9ubHkucG5nCiAgbnB4IC0teWVzIEBjYXBhY2l0b3IvYXNzZXRzIGdlbmVyYXRlIC0tYW5kcm9pZAp9Cm1ha2VfaWNvbnMgfHwgZWNobyAiaWNvbnMgc2tpcHBlZCIKCiMgNSkg2KfZhNio2YbYp9ihCm5weCBjYXAgc3luYyBhbmRyb2lkCmNkIGFuZHJvaWQKY2htb2QgK3ggZ3JhZGxldwouL2dyYWRsZXcgYXNzZW1ibGVEZWJ1ZyAtLW5vLWRhZW1vbgpjZCAuLgpjcCBhbmRyb2lkL2FwcC9idWlsZC9vdXRwdXRzL2Fway9kZWJ1Zy9hcHAtZGVidWcuYXBrIEFMU0NJRi1DYXJidXJhbnQuYXBrCmVjaG8gIkFQSyByZWFkeSIK | base64 -d > build.sh && bash build.sh'
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: "APK v1.0.${{ github.run_number
+          name: APK v1.0.${{ github.run_number }}
+          files: ALSCIF-Carburant.apk
