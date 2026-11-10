@@ -7,11 +7,158 @@
 <meta name="theme-color" content="#4f46e5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Carburant">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>نظام متابعة بطاقة الوقود - ALSCIF</title>
-<link rel="stylesheet" href="style.css">
+<style>
+:root{
+  --p1:#4f46e5; --p2:#7c3aed; --p3:#06b6d4;
+  --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --bg:#eef2ff; --card:#ffffff;
+  --ok:#059669; --ok-bg:#d1fae5;
+  --bad:#e11d48; --bad-bg:#ffe4e6;
+  --warn:#d97706; --warn-bg:#fef3c7;
+  --info-bg:#e0f2fe; --info:#0369a1;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Roboto,sans-serif}
+html,body{overflow-x:hidden}
+body{background:radial-gradient(1200px 500px at 90% -10%,#c7d2fe 0,transparent 60%),radial-gradient(900px 500px at -10% 10%,#a5f3fc 0,transparent 55%),var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ===== Header ===== */
+.hero{background:linear-gradient(120deg,var(--p1),var(--p2) 55%,var(--p3));color:#fff;padding:22px 20px 70px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.1);top:-120px;left:-80px}
+.hero-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:26px;backdrop-filter:blur(6px)}
+.brand h1{font-size:1.3rem;font-weight:800}
+.brand p{font-size:.8rem;opacity:.85}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+button{border:none;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;font-size:.9rem;transition:transform .15s,box-shadow .15s,opacity .15s;display:inline-flex;align-items:center;gap:6px}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.btn-glass{background:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.35)}
+.btn-glass:hover{background:rgba(255,255,255,.32)}
+.btn-main{background:linear-gradient(120deg,var(--p1),var(--p2));color:#fff;box-shadow:0 8px 18px -8px rgba(79,70,229,.8)}
+.btn-soft{background:#eef2ff;color:var(--p1)}
+.btn-red{background:var(--bad-bg);color:var(--bad)}
+.btn-amber{background:var(--warn-bg);color:var(--warn)}
+.btn-green{background:var(--ok-bg);color:var(--ok)}
+.btn-block{width:100%;justify-content:center;padding:13px;font-size:1rem}
+.btn-sm{padding:6px 10px;font-size:.75rem;border-radius:9px}
+
+.wrap{max-width:1200px;margin:-48px auto 40px;padding:0 16px;position:relative;z-index:2}
+
+/* ===== Stats ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:0 10px 30px -14px rgba(30,41,59,.35);display:flex;gap:12px;align-items:center}
+.stat .ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:22px;flex:none}
+.stat small{color:var(--muted);font-size:.75rem;display:block}
+.stat b{font-size:1.25rem;direction:ltr;display:inline-block}
+.ic1{background:#e0e7ff}.ic2{background:var(--bad-bg)}.ic3{background:#cffafe}.ic4{background:#ede9fe}
+
+/* ===== Language switch ===== */
+.lang{display:inline-flex;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:3px;backdrop-filter:blur(6px)}
+.lang button{background:transparent;color:#fff;padding:6px 12px;border-radius:9px;font-size:.8rem}
+.lang button.on{background:#fff;color:var(--p1)}
+.actions{align-items:center}
+
+/* ===== Credit ===== */
+.credit{text-align:center;color:var(--muted);font-size:.85rem;padding:6px 16px 28px}
+.credit b{background:linear-gradient(120deg,var(--p1),var(--p2) 55%,var(--p3));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;letter-spacing:.02em}
+@media print{.credit{display:none!important}}
+
+/* ===== Cards ===== */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:0 10px 30px -14px rgba(30,41,59,.35);margin-bottom:18px;overflow:hidden}
+.card-h{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:800;border-bottom:1px solid var(--line);gap:10px}
+.card-h .t{display:flex;align-items:center;gap:8px}
+.card-b{padding:20px}
+.cols{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+.cols>div{min-width:0}
+@media(min-width:1024px){.cols{grid-template-columns:380px minmax(0,1fr)}}
+
+label{display:block;font-size:.8rem;font-weight:700;margin-bottom:6px;color:#475569}
+.fg{margin-bottom:14px}
+input[type=text],input[type=number],input[type=date]{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:1rem;background:#f8fafc;transition:border-color .2s,box-shadow .2s}
+input:focus{border-color:var(--p1);outline:none;box-shadow:0 0 0 4px rgba(79,70,229,.15);background:#fff}
+.in-red{background:#fff1f2;border-color:#fda4af;font-weight:700}
+.in-green{background:#ecfdf5;border-color:#6ee7b7;font-weight:700}
+.cfg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.cfg-grid .fg{margin:0}
+
+.balance{background:linear-gradient(135deg,#eef2ff,#ecfeff);border:1px solid #c7d2fe;border-radius:16px;padding:14px;text-align:center;margin-bottom:16px}
+.balance small{color:var(--muted)}
+.balance .v{font-size:2rem;font-weight:800;color:var(--p1);direction:ltr;display:inline-block}
+.balance .pr{font-weight:700;font-size:.85rem;color:var(--info)}
+.calc{background:var(--info-bg);color:var(--info);border-radius:12px;padding:10px 12px;font-size:.88rem;margin-bottom:14px}
+
+/* ===== Table ===== */
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;text-align:start}
+table.t th,table.t td{padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t th{background:#f8fafc;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+table.t tbody tr:hover{background:#f8faff}
+.ltr{direction:ltr;display:inline-block}
+.badge{padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:800}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-bad{background:var(--bad-bg);color:var(--bad)}
+.b-chg{background:#cffafe;color:#0e7490}
+.b-rech{background:#dcfce7;color:#15803d}
+tr.rech td{background:#f0fdf4}
+.alert-bar{display:none;background:linear-gradient(120deg,#e11d48,#f97316);color:#fff;border-radius:var(--radius);padding:14px 18px;margin-bottom:18px;box-shadow:0 10px 30px -14px rgba(225,29,72,.7);align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:700}
+.alert-bar.show{display:flex}
+.alert-bar.empty{background:linear-gradient(120deg,#9f1239,#e11d48)}
+.empty{text-align:center;color:var(--muted);padding:34px 10px}
+
+/* ===== Photos ===== */
+.photo-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ph{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f8fafc}
+.ph img{width:100%;height:130px;object-fit:cover;display:block;cursor:zoom-in}
+.ph .cap{padding:8px 10px;font-size:.75rem;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.hint{font-size:.8rem;color:var(--muted);margin-bottom:12px}
+
+/* ===== Modal / toast ===== */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(3px);display:none;justify-content:center;align-items:center;z-index:1000;padding:16px}
+.modal{background:#fff;width:100%;max-width:420px;border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.modal-h{background:linear-gradient(120deg,#e11d48,#f97316);color:#fff;padding:16px;font-weight:800;text-align:center}
+.modal-b{padding:20px;text-align:center;line-height:1.9}
+.modal-a{padding:14px;display:flex;gap:10px;justify-content:center;background:#f8fafc}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);background:#0f172a;color:#fff;padding:12px 20px;border-radius:14px;opacity:0;transition:.3s;z-index:2000;font-weight:600;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#lightbox img{max-width:95%;max-height:90vh;border-radius:12px}
+
+/* ===== Print area ===== */
+#print-area{display:none}
+
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  html,body{background:#fff!important}
+  .hero,.wrap,.overlay,.toast{display:none!important}
+  #print-area{display:block;direction:ltr;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:12px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ph-head{width:100%;border-collapse:collapse;margin-bottom:14px;text-align:center}
+  .ph-head td{border:1px solid #000;padding:8px}
+  .cn{font-weight:bold;font-size:13px}.cs{font-size:10px}
+  .dt{background:#eee;font-weight:bold;font-size:14px}
+  .pm{display:flex;justify-content:space-between;margin-bottom:14px;font-weight:bold}
+  .pi{margin-bottom:14px;line-height:1.8;font-weight:bold}
+  .pi span{font-weight:normal;border-bottom:1px dotted #000;padding:0 4px}
+  .pt{width:100%;border-collapse:collapse;margin-bottom:26px;font-size:11px}
+  .pt th,.pt td{border:1px solid #000;padding:5px;text-align:center;height:8.2mm}
+  .pt th{background:#f1f1f1;height:auto}
+  .pt thead{display:table-header-group}
+  .pt tr{page-break-inside:avoid}
+  .psig{display:flex;justify-content:space-between;font-weight:bold;padding:0 6px;margin-top:24px;font-size:11px}
+  .pft{margin-top:36px;font-size:8px;display:flex;justify-content:space-between;color:#444}
+  .photo-page{page-break-before:always}
+  .photo-page h2{font-size:15px;margin-bottom:4px}
+  .photo-page .sub{font-size:11px;color:#444;margin-bottom:14px;border-bottom:2px solid #000;padding-bottom:8px}
+  .photo-item{margin-bottom:14px;page-break-inside:avoid;text-align:center}
+  .photo-item img{max-width:100%;max-height:118mm;border:1px solid #000}
+  .photo-item .pc{font-size:10px;margin-top:4px;text-align:left}
+}
+
+</style>
 </head>
 <body>
 
@@ -191,7 +338,478 @@
   <div class="photo-page" id="pPhotos" style="display:none"></div>
 </div>
 
-<script src="i18n.js"></script>
-<script src="app.js"></script>
+<script>
+/* ===== الترجمة: العربية / Français / English ===== */
+const I18N = {
+  ar: {
+    credit: '✍️ تصميم وتطوير:',
+    app_title: 'متابعة بطاقة الوقود', app_sub: 'ALSCIF • يخدم بدون انترنت',
+    export_xlsx: '📊 تصدير Excel', export_pdf: '📄 تصدير PDF (A4)',
+    cam_last: '📸 صوّر آخر وصل', recharge_log: '🔋 سجّل الشحن',
+    st_balance: 'الرصيد الحالي (دج)', st_spent: 'مجموع المسحوب (دج)', st_liters: 'مجموع اللترات', st_count: 'عدد العمليات',
+    cfg_title: '⚙️ بيانات البطاقة والمركبة', cfg_auto: 'يتحفظو أوتوماتيكيا',
+    cfg_initial: 'الرصيد الابتدائي (Solde Initial)', cfg_card: 'رقم البطاقة (N° Carte)',
+    cfg_type: "نوع الآلة / المركبة (Type d'Engin ou véhicule)", cfg_immat: 'رقم التسجيل (Immatriculation ou Numéro de série)',
+    cfg_thr: '🔔 حد التنبيه: نذكّرك لما الرصيد ينزل لهذا المبلغ (دج)',
+    ph_divers: 'متعدد (Divers)',
+    new_tx: '➕ تسجيل وصل جديد', edit_tx: n => `✏️ تعديل العملية رقم ${n}`,
+    exp_bal: 'الرصيد المتوقع حالياً', price_line: 'السعر المعتمد: 31 دج / لتر',
+    f_date: 'التاريخ (Date)', f_driver: 'السائق (Nom et prénom)', f_vehicle: 'المركبة / الآلة (Véhicule / Immat.)', f_vehicle_ph: 'مثال: Hilux 12345',
+    f_amount: 'المبلغ المقتطع (Montant)', calc_l: 'الكمية المحسوبة:', liter: 'لتر', f_ticket: 'الرصيد المتبقي من الوصل (Solde Restant)',
+    btn_save: '💾 تسجيل وحفظ', btn_update: '💾 تحديث', btn_cancel: 'إلغاء',
+    photo_title: '📷 صورة آخر وصل',
+    photo_hint: 'صوّر آخر وصل قبل ما تطلب شحن البطاقة. الصور تطلع ف<b>الصفحة الثانية</b> من PDF.',
+    photo_cam: '📸 تصوير', photo_gal: '🖼️ من المعرض', photo_none: 'ما كاين حتى صورة', photos_n: n => `${n} صورة`,
+    log_title: '📒 سجل المتابعة', btn_recharge: '🔋 تسجيل شحن', btn_clear: '🗑️ مسح الكل',
+    th_date: 'التاريخ', th_driver: 'السائق', th_vehicle: 'المركبة', th_amount: 'المبلغ', th_qty: 'الكمية (L)', th_ticket: 'رصيد الوصل', th_status: 'الحالة', th_actions: 'إجراءات',
+    empty_log: 'ما كاين حتى عملية مسجلة 👌',
+    st_ok: 'سليم', st_short: n => `نقص ${n}`, st_charge: n => `شحن +${n}`, recharge_row: '🔋 شحن البطاقة', st_recharge: 'شحن',
+    btn_edit: 'تعديل', btn_del: 'حذف',
+    alert_title: '⚠️ إنذار: نقص ف رصيد البطاقة!', alert_exp: 'الرصيد المتوقع:', alert_tk: 'الرصيد ف الوصل:', alert_short: 'قيمة النقص:',
+    btn_cancel_tx: 'إلغاء التسجيل', btn_force: 'تجاهل وحفظ',
+    rc_title: '🔋 تسجيل شحن البطاقة (من الإدارة)', rc_date: 'تاريخ الشحن', rc_amount: 'المبلغ اللي شحنتو الإدارة (دج)',
+    rc_hint: 'الشحن تديرو الإدارة. لما تشحن، دخل المبلغ هنا: الرصيد الجديد = الرصيد الحالي + مبلغ الشحن، وتتبدا دورة جديدة.',
+    btn_rc_save: '💾 حفظ الشحن',
+    cur: 'دج',
+    low_empty: '🚨 البطاقة فرغت! صوّر آخر وصل وبلّغ الإدارة باش تشحنها، وبعد الشحن سجّل المبلغ.',
+    low_near: (b, l) => `⚠️ البطاقة قريب تفرغ: باقي ${b} دج (≈ ${l} لتر). صوّر آخر وصل وبلّغ الإدارة باش تشحنها، وبعد الشحن سجّل المبلغ.`,
+    toast_mem: '⚠️ الذاكرة عامرة، امسح بعض الصور', toast_img: 'تعذر قراءة الصورة', toast_nodata: 'ما كاين بيانات للتصدير',
+    toast_rc_amount: 'دخل مبلغ الشحن', toast_rc_ok: '🔋 تم تسجيل الشحن', toast_saved: '✅ تم الحفظ',
+    toast_low: '🔔 تذكير: البطاقة قريب تفرغ، صوّر آخر وصل وبلّغ الإدارة للشحن',
+    toast_bigger: n => `💡 رصيد الوصل أكبر بـ ${n} دج (شحن)`,
+    confirm_del: 'متأكد تحذف هذه العملية؟', confirm_clear: 'متأكد تمسح كامل السجل؟ ما تقدرش ترجع.', confirm_photo: 'حذف هذه الصورة؟'
+  },
+  fr: {
+    credit: '✍️ Conçu et développé par',
+    app_title: 'Suivi carte carburant', app_sub: 'ALSCIF • Fonctionne hors ligne',
+    export_xlsx: '📊 Exporter Excel', export_pdf: '📄 Exporter PDF (A4)',
+    cam_last: '📸 Photo du dernier reçu', recharge_log: '🔋 Enregistrer le rechargement',
+    st_balance: 'Solde actuel (DA)', st_spent: 'Total consommé (DA)', st_liters: 'Total litres', st_count: 'Opérations',
+    cfg_title: '⚙️ Carte et véhicule', cfg_auto: 'Enregistré automatiquement',
+    cfg_initial: 'Solde initial', cfg_card: 'N° de la carte',
+    cfg_type: "Type d'engin ou véhicule", cfg_immat: 'Immatriculation ou numéro de série',
+    cfg_thr: "🔔 Seuil d'alerte : prévenir quand le solde descend à (DA)",
+    ph_divers: 'Divers',
+    new_tx: '➕ Nouveau reçu', edit_tx: n => `✏️ Modifier l'opération n° ${n}`,
+    exp_bal: 'Solde attendu actuellement', price_line: 'Prix retenu : 31 DA / litre',
+    f_date: 'Date', f_driver: 'Nom et prénom', f_vehicle: 'Véhicule / Immat.', f_vehicle_ph: 'Ex. : Hilux 12345',
+    f_amount: 'Montant prélevé', calc_l: 'Quantité calculée :', liter: 'L', f_ticket: 'Solde restant sur le reçu',
+    btn_save: '💾 Enregistrer', btn_update: '💾 Mettre à jour', btn_cancel: 'Annuler',
+    photo_title: '📷 Photo du dernier reçu',
+    photo_hint: 'Photographiez le dernier reçu avant la demande de rechargement. Les photos apparaissent en <b>page 2</b> du PDF.',
+    photo_cam: '📸 Prendre une photo', photo_gal: '🖼️ Galerie', photo_none: 'Aucune photo', photos_n: n => `${n} photo(s)`,
+    log_title: '📒 Journal de suivi', btn_recharge: '🔋 Rechargement', btn_clear: '🗑️ Tout effacer',
+    th_date: 'Date', th_driver: 'Chauffeur', th_vehicle: 'Véhicule', th_amount: 'Montant', th_qty: 'Qté (L)', th_ticket: 'Solde reçu', th_status: 'Statut', th_actions: 'Actions',
+    empty_log: 'Aucune opération enregistrée 👌',
+    st_ok: 'OK', st_short: n => `Manque ${n}`, st_charge: n => `Recharge +${n}`, recharge_row: '🔋 Rechargement de la carte', st_recharge: 'Recharge',
+    btn_edit: 'Modifier', btn_del: 'Suppr.',
+    alert_title: '⚠️ Alerte : solde de la carte insuffisant !', alert_exp: 'Solde attendu :', alert_tk: 'Solde sur le reçu :', alert_short: 'Montant manquant :',
+    btn_cancel_tx: "Annuler l'enregistrement", btn_force: 'Ignorer et enregistrer',
+    rc_title: "🔋 Rechargement de la carte (par l'administration)", rc_date: 'Date du rechargement', rc_amount: "Montant rechargé par l'administration (DA)",
+    rc_hint: "Le rechargement est effectué par l'administration. Une fois fait, saisissez le montant ici : nouveau solde = solde actuel + montant, et un nouveau cycle commence.",
+    btn_rc_save: '💾 Enregistrer le rechargement',
+    cur: 'DA',
+    low_empty: "🚨 La carte est vide ! Photographiez le dernier reçu et prévenez l'administration pour la recharger, puis enregistrez le montant.",
+    low_near: (b, l) => `⚠️ La carte est presque vide : il reste ${b} DA (≈ ${l} L). Photographiez le dernier reçu et prévenez l'administration pour la recharger, puis enregistrez le montant.`,
+    toast_mem: '⚠️ Mémoire pleine, supprimez des photos', toast_img: "Impossible de lire l'image", toast_nodata: 'Aucune donnée à exporter',
+    toast_rc_amount: 'Saisissez le montant du rechargement', toast_rc_ok: '🔋 Rechargement enregistré', toast_saved: '✅ Enregistré',
+    toast_low: "🔔 Rappel : carte presque vide, photographiez le dernier reçu et prévenez l'administration",
+    toast_bigger: n => `💡 Le solde du reçu dépasse l'attendu de ${n} DA (rechargement)`,
+    confirm_del: 'Supprimer cette opération ?', confirm_clear: 'Effacer tout le journal ? Action irréversible.', confirm_photo: 'Supprimer cette photo ?'
+  },
+  en: {
+    credit: '✍️ Designed & developed by',
+    app_title: 'Fuel card tracker', app_sub: 'ALSCIF • Works offline',
+    export_xlsx: '📊 Export Excel', export_pdf: '📄 Export PDF (A4)',
+    cam_last: '📸 Photo of last receipt', recharge_log: '🔋 Record recharge',
+    st_balance: 'Current balance (DZD)', st_spent: 'Total spent (DZD)', st_liters: 'Total litres', st_count: 'Transactions',
+    cfg_title: '⚙️ Card & vehicle', cfg_auto: 'Saved automatically',
+    cfg_initial: 'Initial balance', cfg_card: 'Card number',
+    cfg_type: 'Machine / vehicle type', cfg_immat: 'Registration or serial number',
+    cfg_thr: '🔔 Alert threshold: remind me when balance drops to (DZD)',
+    ph_divers: 'Various',
+    new_tx: '➕ New receipt', edit_tx: n => `✏️ Edit transaction #${n}`,
+    exp_bal: 'Expected balance now', price_line: 'Approved price: 31 DZD / litre',
+    f_date: 'Date', f_driver: 'Driver name', f_vehicle: 'Vehicle / Reg.', f_vehicle_ph: 'e.g. Hilux 12345',
+    f_amount: 'Amount deducted', calc_l: 'Calculated quantity:', liter: 'L', f_ticket: 'Remaining balance on receipt',
+    btn_save: '💾 Save', btn_update: '💾 Update', btn_cancel: 'Cancel',
+    photo_title: '📷 Last receipt photo',
+    photo_hint: 'Photograph the last receipt before requesting a recharge. Photos appear on <b>page 2</b> of the PDF.',
+    photo_cam: '📸 Take photo', photo_gal: '🖼️ Gallery', photo_none: 'No photos yet', photos_n: n => `${n} photo(s)`,
+    log_title: '📒 Tracking log', btn_recharge: '🔋 Recharge', btn_clear: '🗑️ Clear all',
+    th_date: 'Date', th_driver: 'Driver', th_vehicle: 'Vehicle', th_amount: 'Amount', th_qty: 'Qty (L)', th_ticket: 'Receipt bal.', th_status: 'Status', th_actions: 'Actions',
+    empty_log: 'No transactions recorded 👌',
+    st_ok: 'OK', st_short: n => `Short ${n}`, st_charge: n => `Recharge +${n}`, recharge_row: '🔋 Card recharge', st_recharge: 'Recharge',
+    btn_edit: 'Edit', btn_del: 'Delete',
+    alert_title: '⚠️ Alert: card balance shortfall!', alert_exp: 'Expected balance:', alert_tk: 'Balance on receipt:', alert_short: 'Shortfall:',
+    btn_cancel_tx: 'Cancel entry', btn_force: 'Ignore & save',
+    rc_title: '🔋 Record card recharge (by administration)', rc_date: 'Recharge date', rc_amount: 'Amount recharged by administration (DZD)',
+    rc_hint: 'Recharging is done by administration. Once done, enter the amount here: new balance = current balance + amount, and a new cycle begins.',
+    btn_rc_save: '💾 Save recharge',
+    cur: 'DZD',
+    low_empty: '🚨 The card is empty! Photograph the last receipt and notify administration to recharge it, then record the amount.',
+    low_near: (b, l) => `⚠️ The card is almost empty: ${b} DZD left (≈ ${l} L). Photograph the last receipt and notify administration to recharge it, then record the amount.`,
+    toast_mem: '⚠️ Storage full, delete some photos', toast_img: 'Could not read the image', toast_nodata: 'No data to export',
+    toast_rc_amount: 'Enter the recharge amount', toast_rc_ok: '🔋 Recharge recorded', toast_saved: '✅ Saved',
+    toast_low: '🔔 Reminder: card almost empty, photograph the last receipt and notify administration',
+    toast_bigger: n => `💡 Receipt balance is ${n} DZD above expected (recharge)`,
+    confirm_del: 'Delete this transaction?', confirm_clear: 'Clear the whole log? This cannot be undone.', confirm_photo: 'Delete this photo?'
+  }
+};
+
+let LANG = 'ar';
+try { const l = localStorage.getItem('alscif_lang'); if (l && I18N[l]) LANG = l; } catch (e) {}
+const t = (k, ...a) => { const v = I18N[LANG][k] ?? I18N.ar[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
+
+const PRICE = 31;
+const K_CFG='alscif_config', K_TX='alscif_data', K_PH='alscif_photos';
+
+function load(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }
+let config = Object.assign({initial:0,card:'',type:'',immat:'',threshold:3000}, load(K_CFG,{}));
+// توافق مع النسخة القديمة
+if(config.enginType && !config.type) config.type = config.enginType;
+let tx = load(K_TX,[]);
+let photos = load(K_PH,[]);
+let pending = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2 = n => Math.round((n+Number.EPSILON)*100)/100;
+const fmt = n => r2(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fd = d => { if(!d) return ''; const p=d.split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }
+function persist(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ toast(t('toast_mem')); return false; } }
+
+/* ===== اللغة ===== */
+function updateFormLabels(){
+  const i=parseInt($('editIndex').value);
+  $('formTitle').textContent = i>-1 ? t('edit_tx',i+1) : t('new_tx');
+  $('saveBtn').textContent = i>-1 ? t('btn_update') : t('btn_save');
+}
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG==='ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(e=>{ e.textContent=t(e.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(e=>{ e.innerHTML=t(e.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(e=>{ e.placeholder=t(e.dataset.i18nPh); });
+  document.title = t('app_title')+' - ALSCIF';
+  document.querySelectorAll('#langSw button').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));
+  updateFormLabels();
+}
+function setLang(l){
+  if(!I18N[l]) return;
+  LANG=l; try{ localStorage.setItem('alscif_lang',l); }catch(e){}
+  applyLang(); render(); renderPhotos();
+}
+
+window.onload = () => {
+  applyLang();
+  $('inpDate').valueAsDate = new Date();
+  $('cfgInitial').value = config.initial || '';
+  $('cfgCard').value = config.card || '';
+  $('cfgType').value = config.type || '';
+  $('cfgImmat').value = config.immat || '';
+  $('cfgThr').value = config.threshold ?? '';
+  recalc(); render(); renderPhotos();
+};
+
+/* ===== الإعدادات ===== */
+function saveConfig(){
+  config = {
+    initial: parseFloat($('cfgInitial').value)||0,
+    card: $('cfgCard').value,
+    type: $('cfgType').value,
+    immat: $('cfgImmat').value,
+    threshold: parseFloat($('cfgThr').value)||0
+  };
+  persist(K_CFG,config);
+  recalc(); render();
+}
+
+/* ===== الحسابات ===== */
+function calcLiters(){
+  const a=parseFloat($('inpAmount').value);
+  $('calcLit').textContent = a>0 ? (a/PRICE).toFixed(2) : '0.00';
+}
+// الرصيد قبل العملية i = رصيد وصل العملية السابقة (أو الابتدائي)
+function balanceBefore(i){ return i<=0 ? config.initial : tx[i-1].ticketBalance; }
+function currentBalance(){ return tx.length ? tx[tx.length-1].ticketBalance : config.initial; }
+
+function recalc(){
+  let run = config.initial;
+  tx.forEach(t=>{
+    if(t.type==='recharge'){
+      run = r2(run + t.amount);
+      t.ticketBalance = run; t.expectedBalance = run; t.status = 'recharge'; t.diff = 0;
+      return;
+    }
+    const exp = r2(run - t.amount);
+    t.expectedBalance = exp;
+    const diff = r2(exp - t.ticketBalance);
+    t.status = diff>0 ? 'short' : (diff<0 ? 'charge' : 'ok');
+    t.diff = diff;
+    run = t.ticketBalance;
+  });
+  persist(K_TX,tx);
+}
+
+/* ===== العرض ===== */
+function render(){
+  const fuelTx = tx.filter(t=>t.type!=='recharge');
+  const spent = fuelTx.reduce((s,t)=>s+t.amount,0);
+  const lit = fuelTx.reduce((s,t)=>s+t.qty,0);
+  $('expBal').textContent = fmt(currentBalance())+' '+t('cur');
+  $('stBal').textContent = fmt(currentBalance());
+  $('stSpent').textContent = fmt(spent);
+  $('stLit').textContent = fmt(lit);
+  $('stCnt').textContent = fuelTx.length;
+
+  // تنبيه قرب فراغ البطاقة
+  const bal = currentBalance(), th = config.threshold||0, bar = $('lowBar');
+  bar.classList.remove('show','empty');
+  if(config.initial>0 || tx.length){
+    if(bal<=0){
+      bar.classList.add('show','empty');
+      $('lowTxt').textContent = t('low_empty');
+    } else if(th>0 && bal<=th){
+      bar.classList.add('show');
+      $('lowTxt').textContent = t('low_near',fmt(bal),fmt(bal/PRICE));
+    }
+  }
+
+  const tb = $('tbody'); tb.innerHTML='';
+  if(!tx.length){ tb.innerHTML=`<tr><td colspan="8" class="empty">${t('empty_log')}</td></tr>`; }
+  for(let i=tx.length-1;i>=0;i--){
+    const x=tx[i];
+    if(x.type==='recharge'){
+      const trr=document.createElement('tr'); trr.className='rech';
+      trr.innerHTML=`<td><span class="ltr">${fd(x.date)}</span></td><td colspan="2" style="font-weight:800;color:#15803d">${t('recharge_row')}</td><td><span class="ltr" style="color:#15803d;font-weight:700">+${fmt(x.amount)}</span></td><td>—</td><td><span class="ltr" style="font-weight:700">${fmt(x.ticketBalance)}</span></td><td><span class="badge b-rech">${t('st_recharge')}</span></td><td><button class="btn-red btn-sm" onclick="delTx(${i})">${t('btn_del')}</button></td>`;
+      tb.appendChild(trr); continue;
+    }
+    const st = x.status==='short' ? `<span class="badge b-bad">${t('st_short',fmt(x.diff))}</span>`
+             : x.status==='charge' ? `<span class="badge b-chg">${t('st_charge',fmt(-x.diff))}</span>`
+             : `<span class="badge b-ok">${t('st_ok')}</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="ltr">${fd(x.date)}</span></td>
+      <td>${esc(x.driver)}</td>
+      <td style="font-weight:700;color:var(--p1)">${esc(x.vehicle)}</td>
+      <td><span class="ltr" style="color:var(--bad);font-weight:700">-${fmt(x.amount)}</span></td>
+      <td><span class="ltr">${x.qty.toFixed(2)}</span></td>
+      <td><span class="ltr" style="font-weight:700">${fmt(x.ticketBalance)}</span></td>
+      <td>${st}</td>
+      <td><button class="btn-amber btn-sm" onclick="editTx(${i})">${t('btn_edit')}</button> <button class="btn-red btn-sm" onclick="delTx(${i})">${t('btn_del')}</button></td>`;
+    tb.appendChild(tr);
+  }
+  buildPrint();
+}
+
+function isLow(){ return (config.threshold||0)>0 && (tx.length>0 || config.initial>0) && currentBalance() <= config.threshold; }
+
+function buildPrint(){
+  $('pType').textContent = config.type || 'Divers';
+  $('pImmat').textContent = config.immat || 'Divers';
+  $('pCard').textContent = config.card || '......................';
+  const n=new Date();
+  $('pDate').textContent = `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()}`;
+  const pb=$('pBody'); pb.innerHTML='';
+  const fuelP = tx.filter(t=>t.type!=='recharge');
+  const rows=Math.max(15,fuelP.length);
+  for(let i=0;i<rows;i++){
+    const t=fuelP[i];
+    pb.insertAdjacentHTML('beforeend', t
+      ? `<tr><td>${i+1}</td><td>${fd(t.date)}</td><td>${esc(t.driver)}</td><td>${esc(t.vehicle)}</td><td>${fmt(t.amount)}</td><td>${t.qty.toFixed(2)}</td><td></td></tr>`
+      : `<tr><td>${i+1}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`);
+  }
+  const pp=$('pPhotos');
+  if(photos.length){
+    pp.style.display='block';
+    pp.innerHTML=`<h2>Annexe — Justificatif du dernier reçu</h2>
+      <div class="sub">Reçu(s) avant demande de rechargement de la carte N° ${esc(config.card||'..........')} — ${esc(config.type||'Divers')} / ${esc(config.immat||'Divers')}</div>`+
+      photos.map(p=>`<div class="photo-item"><img src="${p.data}" alt=""><div class="pc">${fd(p.date)}${p.time?' — '+esc(p.time):''}</div></div>`).join('');
+  } else { pp.style.display='none'; pp.innerHTML=''; }
+}
+
+/* ===== تسجيل / تعديل ===== */
+function handleSubmit(e){
+  e.preventDefault();
+  const idx=parseInt($('editIndex').value);
+  const amount=parseFloat($('inpAmount').value);
+  const ticket=parseFloat($('inpTicket').value);
+  const before = balanceBefore(idx>-1?idx:tx.length);
+  const exp = r2(before-amount);
+  pending={
+    id: idx>-1 ? tx[idx].id : Date.now(),
+    date:$('inpDate').value,
+    driver:$('inpDriver').value.trim(),
+    vehicle:$('inpVehicle').value.trim(),
+    amount, qty:r2(amount/PRICE), ticketBalance:ticket
+  };
+  const diff=r2(exp-ticket);
+  if(diff>0){
+    $('alertText').innerHTML=`
+      <div>${t('alert_exp')} <b class="ltr">${fmt(exp)} ${t('cur')}</b></div>
+      <div>${t('alert_tk')} <b class="ltr">${fmt(ticket)} ${t('cur')}</b></div>
+      <div style="font-size:1.15rem;color:var(--bad);margin-top:6px">${t('alert_short')} <b class="ltr">${fmt(diff)} ${t('cur')}</b></div>`;
+    $('alertModal').style.display='flex';
+  } else {
+    if(diff<0) toast(t('toast_bigger',fmt(-diff)));
+    commit();
+  }
+}
+function cancelTx(){ pending=null; $('alertModal').style.display='none'; }
+function forceSave(){ $('alertModal').style.display='none'; commit(); }
+function commit(){
+  if(!pending) return;
+  const idx=parseInt($('editIndex').value);
+  if(idx>-1) tx[idx]=pending; else tx.push(pending);
+  pending=null;
+  recalc(); cancelEdit();
+  toast(isLow() ? t('toast_low') : t('toast_saved'));
+}
+function editTx(i){
+  const t=tx[i];
+  $('editIndex').value=i;
+  $('inpDate').value=t.date; $('inpDriver').value=t.driver; $('inpVehicle').value=t.vehicle;
+  $('inpAmount').value=t.amount; $('inpTicket').value=t.ticketBalance; calcLiters();
+  updateFormLabels(); $('cancelBtn').style.display='flex';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function cancelEdit(){
+  $('editIndex').value=-1;
+  ['inpDriver','inpVehicle','inpAmount','inpTicket'].forEach(id=>$(id).value='');
+  $('calcLit').textContent='0.00';
+  updateFormLabels(); $('cancelBtn').style.display='none';
+  render();
+}
+function delTx(i){
+  if(confirm(t('confirm_del'))){ tx.splice(i,1); recalc(); render(); }
+}
+function clearData(){
+  if(confirm(t('confirm_clear'))){ tx=[]; persist(K_TX,tx); render(); }
+}
+
+/* ===== شحن البطاقة ===== */
+function openRecharge(){
+  $('rcDate').valueAsDate = new Date();
+  $('rcAmount').value = '';
+  $('rcModal').style.display = 'flex';
+}
+function closeRecharge(){ $('rcModal').style.display = 'none'; }
+function saveRecharge(){
+  const a = parseFloat($('rcAmount').value);
+  if(!(a>0)) return toast(t('toast_rc_amount'));
+  tx.push({id:Date.now(), type:'recharge', date:$('rcDate').value, amount:a, driver:'', vehicle:'', qty:0});
+  closeRecharge(); recalc(); render();
+  toast(t('toast_rc_ok'));
+}
+
+/* ===== صور الوصل ===== */
+function compress(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{ const img=new Image();
+      img.onload=()=>{ const max=1400, s=Math.min(1,max/Math.max(img.width,img.height));
+        const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        res(c.toDataURL('image/jpeg',0.72)); };
+      img.onerror=rej; img.src=fr.result; };
+    fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+async function addPhotos(inp){
+  const files=[...inp.files]; inp.value='';
+  for(const f of files){
+    try{
+      const data=await compress(f); const n=new Date();
+      photos.push({id:Date.now()+Math.random(), data, date:n.toISOString().slice(0,10), time:n.toTimeString().slice(0,5)});
+    }catch(e){ toast(t('toast_img')); }
+  }
+  if(!persist(K_PH,photos)){ photos.pop(); }
+  renderPhotos(); buildPrint();
+}
+function renderPhotos(){
+  $('phCount').textContent = photos.length ? t('photos_n',photos.length) : '';
+  const box=$('photos');
+  box.innerHTML = photos.length ? '' : `<div class="empty" style="grid-column:1/-1;padding:14px">${t('photo_none')}</div>`;
+  photos.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='ph';
+    d.innerHTML=`<img src="${p.data}" alt="" onclick="zoom(${i})"><div class="cap"><span class="ltr">${fd(p.date)} ${esc(p.time||'')}</span><button class="btn-red btn-sm" onclick="delPhoto(${i})">${t('btn_del')}</button></div>`;
+    box.appendChild(d);
+  });
+}
+function zoom(i){ $('lbImg').src=photos[i].data; $('lightbox').style.display='flex'; }
+function delPhoto(i){ if(confirm(t('confirm_photo'))){ photos.splice(i,1); persist(K_PH,photos); renderPhotos(); buildPrint(); } }
+
+/* ===== التصدير ===== */
+/* داخل تطبيق الأندرويد (APK): نستعمل الطباعة الأصلية والمشاركة بدل window.print والتحميل */
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const plug = n => (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins[n] : null;
+
+function exportPDF(){
+  if(!tx.length && !photos.length) return toast(t('toast_nodata'));
+  buildPrint();
+  const name='Suivi_Carburant_'+(config.immat||'Divers').replace(/[^\w-]+/g,'_');
+  if(NATIVE && plug('NativePrint')){
+    plug('NativePrint').print({name}).catch(()=>window.print());
+    return;
+  }
+  const old=document.title;
+  document.title=name;
+  window.print();
+  setTimeout(()=>document.title=old,500);
+}
+
+async function saveFile(name, mime, content){
+  if(NATIVE && plug('Filesystem') && plug('Share')){
+    try{
+      const r = await plug('Filesystem').writeFile({path:name, data:content, directory:'CACHE', encoding:'utf8'});
+      await plug('Share').share({title:name, url:r.uri, dialogTitle:name});
+      return;
+    }catch(e){ if(e && /cancel/i.test(String(e.message||e))) return; toast(t('toast_img')); return; }
+  }
+  const blob=new Blob([content],{type:mime});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+function exportExcel(){
+  if(!tx.length) return toast(t('toast_nodata'));
+  let nx = 0;
+  const rows = tx.map(t=> t.type==='recharge'
+    ? `<tr><td>-</td><td>${fd(t.date)}</td><td colspan="2">RECHARGEMENT CARTE</td><td>+${t.amount}</td><td></td><td>${t.ticketBalance}</td><td>Rechargement</td></tr>`
+    : `<tr><td>${++nx}</td><td>${fd(t.date)}</td><td>${esc(t.driver)}</td><td>${esc(t.vehicle)}</td><td>${t.amount}</td><td>${t.qty.toFixed(2)}</td><td>${t.ticketBalance}</td><td>${t.status==='short'?'Manque '+fmt(t.diff):t.status==='charge'?'Solde superieur':'OK'}</td></tr>`).join('');
+  const fuelX = tx.filter(t=>t.type!=='recharge');
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8">
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Suivi carburant</x:Name>
+<x:WorksheetOptions><x:Print><x:ValidPrinterInfo/><x:PaperSizeIndex>9</x:PaperSizeIndex><x:FitWidth>1</x:FitWidth><x:FitHeight>0</x:FitHeight></x:Print></x:WorksheetOptions>
+</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<style>
+@page{size:A4 portrait;mso-page-orientation:portrait;margin:.5in .4in}
+table{border-collapse:collapse;font-family:Arial}
+td,th{border:1px solid #000;padding:4px 6px;text-align:center;font-size:11pt}
+th{background:#e5e7eb;font-weight:bold}
+.t{font-size:14pt;font-weight:bold;background:#eef2ff}
+.n{border:none;text-align:left;font-weight:bold}
+</style></head><body>
+<table>
+<tr><td colspan="8" class="t">Fiche de suivi de consommation carte carburant véhicules et engins — ALSCIF</td></tr>
+<tr><td colspan="8" class="n">Type d'Engin ou véhicule : ${esc(config.type||'Divers')}</td></tr>
+<tr><td colspan="8" class="n">Immatriculation ou Numéro de série : ${esc(config.immat||'Divers')}</td></tr>
+<tr><td colspan="8" class="n">N° de la carte : ${esc(config.card||'')}</td></tr>
+<tr><th>N°</th><th>Date</th><th>Nom et prénom</th><th>Véhicule / Immat.</th><th>Montant (DA)</th><th>Quantités (L)</th><th>Solde ticket (DA)</th><th>Statut</th></tr>
+${rows}
+<tr><td colspan="4" style="font-weight:bold">TOTAL</td><td style="font-weight:bold">${r2(fuelX.reduce((s,t)=>s+t.amount,0))}</td><td style="font-weight:bold">${r2(fuelX.reduce((s,t)=>s+t.qty,0)).toFixed(2)}</td><td colspan="2"></td></tr>
+</table></body></html>`;
+  saveFile('Suivi_Carburant_'+(config.immat||'Divers').replace(/[^\w-]+/g,'_')+'.xls','application/vnd.ms-excel;charset=utf-8',"\uFEFF"+html);
+}
+
+
+</script>
 </body>
 </html>
